@@ -65,3 +65,7 @@ int main(void){
     fclose(dados);
     return 1; //programa saiu dos casos então é erro, melhor encerrar por aqui
 }
+
+void imprimeTrie(Trie* tr){
+
+}
