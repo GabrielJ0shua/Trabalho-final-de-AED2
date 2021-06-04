@@ -1,9 +1,3 @@
-struct pala
-{
-    char p[10];
-};
-
-typedef struct pala Palavra;
 typedef struct trie Trie;
 
 Trie* criaTrie();
