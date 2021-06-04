@@ -3,31 +3,39 @@
 #include "tad.h"
 
 struct trie{
-    int val;
-    struct trie* filhos[256];
+    int val = 0;
+    struct trie* filhos[N];
     int estado; // 0 para livre, 1 para ocupado
 };
 
+//Cria Árvore Trie
 Trie* criaTrie(){
-    Trie* no = malloc(sizeof(Trie));
+    Trie* no = (Trie*) malloc(sizeof(Trie));
     int i;
-
-    no->estado = 0;
-    // no->val = 0; não precisa
-    for(i=0;i<256;i++){
-        no->filhos[i] = NULL;
+    if(no != NULL){
+        no->estado = 0;
+        // no->val = 0; não precisa
+        for( i=0; i<256; i++)
+            no->filhos[i] = NULL;
     }
-
     return no;
 }
 
-void liberaTrie(Trie* tr){
+//Libera Árvore completa
 
+int liberaTrie(Trie* tr , char *str){
+    //elimina todos os nó's de uma vez
+    if(tr != NULL){
+        int i;
+        //for(i = 0; i < N; i++)
+        free(tr->filhos);
+        free(tr);
+        return 1;
+    }
 }
 
-// ====================
 // INSERÇÃO
-int insereTrieAux(Trie **tr, char *str, int val, int n, int p){
+int insereTrieAux(Trie* tr, char *str, char* val, int n, int p){
     if(*tr == NULL){
         *tr = criaTrie();
     }
@@ -86,12 +94,7 @@ int removeTrieAux(Trie **tr, char *str, int n, int p){
     return 0;
 }
 
-int removeTrie(Trie* tr , char *str){
-	
-    //elimina todos os n�s de uma vez
-     free(tr->filhos);
-        free(tr);
- }
+
 
 
 void imprimeTrie(Trie* tr, char* str, int nivel){
