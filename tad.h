@@ -15,3 +15,17 @@ int removeTrie(Trie* tr, char *str);
 void imprimeTrie(Trie* tr);
 //imprime todas as palavras que começam com “prefixo”
 void autocompletarTrie(Trie* tr, char *prefixo);
+
+typedef enum ASCIITrie_ESTADO{
+    ATE_LIVRE,
+    ATE_OCUPADO
+} ASCIITrie_ESTADO;
+
+typedef struct ASCIITrie
+{
+    int val;
+    ASCIITrie_ESTADO estado;
+    struct ASCIITrie * filhos[256];
+} ASCIITrie;
+
+ASCIITrie* ATE_Buscar(ASCIITrie* T, unsigned char* chave);
