@@ -20,11 +20,20 @@ Trie* criaTrie(){
 }
 
 void liberaTrie(Trie* tr){
-    for(int i=0;i<256;i++)
-        free(tr->filhos[i]);
-    free(tr);
+    int i;
+
+    if(tr->estado == 0)
+        for(i=0;i<256;i++)
+            if(tr->filhos[i] != NULL)
+                liberaTrie(tr->filhos[i]);
+    
+    if(tr != NULL)
+        free(tr);
+
     return;
 }
+
+
 
 // ====================
 // INSERÇÃO
