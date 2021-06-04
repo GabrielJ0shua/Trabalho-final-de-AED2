@@ -3,8 +3,8 @@
 #include "tad.h"
 
 struct trie{
-    int val = 0;
-    struct trie* filhos[N];
+    char dado; //Caractere
+    struct trie* filhos[N]; //Lista das folhas
     int estado; // 0 para livre, 1 para ocupado
 };
 
