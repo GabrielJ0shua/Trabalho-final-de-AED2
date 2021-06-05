@@ -3,8 +3,7 @@
 #include "tad.h"
 
 struct trie{
-    char dado; //Caractere
-    struct trie* filhos[N]; //Lista das folhas
+    struct trie* filhos[256];
     int estado; // 0 para livre, 1 para ocupado
 };
 
@@ -12,43 +11,44 @@ struct trie{
 Trie* criaTrie(){
     Trie* no = (Trie*) malloc(sizeof(Trie));
     int i;
-    if(no != NULL){
-        no->estado = 0;
-        // no->val = 0; não precisa
-        for( i=0; i<256; i++)
-            no->filhos[i] = NULL;
+    no->estado = 0;
+    for(i=0;i<256;i++){
+        no->filhos[i] = NULL;
     }
     return no;
 }
 
-//Libera Árvore completa
+void liberaTrie(Trie* tr){
+    int i;
 
-int liberaTrie(Trie* tr , char *str){
-    //elimina todos os nó's de uma vez
-    if(tr != NULL){
-        int i;
-        //for(i = 0; i < N; i++)
-        free(tr->filhos);
+    if(tr->estado == 0)
+        for(i=0;i<256;i++)
+            if(tr->filhos[i] != NULL)
+                liberaTrie(tr->filhos[i]);
+    
+    if(tr != NULL)
         free(tr);
-        return 1;
-    }
+
+    return;
 }
 
+
+
+// ====================
 // INSERÇÃO
-int insereTrieAux(Trie* tr, char *str, char* val, int n, int p){
+int insereTrieAux(Trie **tr, char *str, int n, int p){
     if(*tr == NULL){
         *tr = criaTrie();
     }
     if(p == n){
-        (*tr)->val = val;
         (*tr)->estado = 1;
         return 0;
     }
-    return insereTrieAux(&(*tr)->filhos[str[p]], str, val, n, p+1);
+    return insereTrieAux(&(*tr)->filhos[str[p]], str, n, p+1);
 }
 
 int insereTrie(Trie* tr, char *str){
-    return insereTrieAux(tr, str, val, strlen(str), 0);
+    return insereTrieAux(&tr, str, strlen(str), 0);
 }
 
 // ====================
@@ -67,8 +67,12 @@ Trie* buscaTrieAux(Trie* tr, char *str, int n, int p){
 }
 
 int buscaTrie(Trie* tr, char *str){
-    return buscaTrieAux(tr, str, strlen(str), 0);
-} //retornando tipo de dado errado
+    tr = buscaTrieAux(tr, str, strlen(str), 0);
+    if(tr == NULL)
+        return 1;
+    else
+        return 0;
+}
 
 // ====================
 // REMOÇÃO
@@ -81,7 +85,7 @@ int removeTrieAux(Trie **tr, char *str, int n, int p){
     else
         removeTrieAux(&(*tr)->filhos[str[p]], str, n, p+1);
     // nao libera memória pq palavra (str) pode ser prefixo de outra
-    // verifica se é prefixo:
+    // verifica se é prefixo e libera memória:
     if((*tr)->estado == 1){
         return 0;
     }
@@ -122,11 +126,17 @@ void autocompletarTrie(Trie* tr, char *prefixo){
 }
 
 int removeTrie(Trie* tr, char *str){
-    return removeTrieAux(tr, str, strlen(str), 0);
+    return removeTrieAux(&tr, str, strlen(str), 0);
 }
 
 // ====================
 // AUTOCOMPLETAR
 void autocompletarTrie(Trie* tr, char *prefixo){
+
+}
+
+// ====================
+// IMPRIMIR
+void imprimeTrie(Trie* tr){
 
 }
