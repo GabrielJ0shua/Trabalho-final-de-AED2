@@ -7,15 +7,14 @@ struct trie{
     int estado; // 0 para livre, 1 para ocupado
 };
 
+//Cria Árvore Trie
 Trie* criaTrie(){
     Trie* no = (Trie*) malloc(sizeof(Trie));
     int i;
-
     no->estado = 0;
     for(i=0;i<256;i++){
         no->filhos[i] = NULL;
     }
-
     return no;
 }
 
@@ -97,6 +96,33 @@ int removeTrieAux(Trie **tr, char *str, int n, int p){
     free(*tr);
     *tr = NULL;
     return 0;
+}
+
+
+
+
+void imprimeTrie(Trie* tr, char* str, int nivel){
+	if(ehFolha(tr)==1){
+		str[nivel]='\0';
+		printf("%s\n", str);
+	}
+	int i;
+	for(i=0; i<SIZE; i++){
+		if(tr->filhos[i]){
+			str[nivel] = i+'a';
+			imprimeTrie(tr->filhos[i], str, nivel+1);
+		}
+	}
+}
+void autocompletarTrie(Trie* tr, char *prefixo){
+	int c;
+    while ((c = *prefixo++)) {
+        if (tr->filhos[c] == NULL) {
+            return 0;
+        }
+        tr = tr->filhos[c];
+    }
+    return tr->filhos;
 }
 
 int removeTrie(Trie* tr, char *str){
