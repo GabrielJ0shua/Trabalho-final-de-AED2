@@ -165,6 +165,34 @@ void autocompletarTrie(Trie* tr, char *prefixo){
 
 // ====================
 // IMPRIMIR
-void imprimeTrie(Trie* tr){
+void imprimeTrieAux(Trie* tr, char *palavra, int p){
+    // aloca nova palavra
+    if(p == 0){
+        palavra = (char*) malloc(N*sizeof(char));
+    }
 
+    // não achou um nó
+    if(tr == NULL){
+        return;
+    }
+
+    // imprime se chegou no final da palavra
+    if(tr->estado == 1){
+        printf("%s\n",palavra);
+    }
+
+    // percorre os caracteres da tabela ASCII
+    for (int i = 0; i < N; i++){
+        if(tr->filhos[i] != NULL){
+            palavra[p] = i;
+            palavra[p+1] = '\0';
+            imprimeTrieAux(tr->filhos[i], palavra, p+1);
+        }
+    }
+}
+
+void imprimeTrie(Trie* tr){
+    if(tr != NULL)
+        imprimeTrieAux(tr,"\0",0);
+    return;
 }
