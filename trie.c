@@ -1,9 +1,13 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include "tad.h"
 
+// N é igual ao tamanho da tabela ASCII
+#define N 256
+
 struct trie{
-    struct trie* filhos[256];
+    struct trie* filhos[N];
     int estado; // 0 para livre, 1 para ocupado
 };
 
@@ -12,7 +16,7 @@ Trie* criaTrie(){
     int i;
 
     no->estado = 0;
-    for(i=0;i<256;i++){
+    for(i=0;i<N;i++){
         no->filhos[i] = NULL;
     }
 
@@ -23,7 +27,7 @@ void liberaTrie(Trie* tr){
     int i;
 
     if(tr->estado == 0)
-        for(i=0;i<256;i++)
+        for(i=0;i<N;i++)
             if(tr->filhos[i] != NULL)
                 liberaTrie(tr->filhos[i]);
     
@@ -37,6 +41,8 @@ void liberaTrie(Trie* tr){
 
 // ====================
 // INSERÇÃO
+// p = profundidade, quantas buscas ja foram feitas
+// n = comprimento da palavra
 int insereTrieAux(Trie **tr, char *str, int n, int p){
     if(*tr == NULL){
         *tr = criaTrie();
@@ -54,10 +60,9 @@ int insereTrie(Trie* tr, char *str){
 
 // ====================
 // BUSCA
+// p = profundidade, quantas buscas ja foram feitas
+// n = comprimento da palavra
 Trie* buscaTrieAux(Trie* tr, char *str, int n, int p){
-    // p = profundidade, quantas buscas ja foram feitas
-    // n = comprimento da chave
-
     if(tr == NULL)
         return NULL;
 
@@ -77,6 +82,8 @@ int buscaTrie(Trie* tr, char *str){
 
 // ====================
 // REMOÇÃO
+// p = profundidade, quantas buscas ja foram feitas
+// n = comprimento da palavra
 int removeTrieAux(Trie **tr, char *str, int n, int p){
     if(*tr == NULL)
         return 1;
@@ -86,11 +93,11 @@ int removeTrieAux(Trie **tr, char *str, int n, int p){
     else
         removeTrieAux(&(*tr)->filhos[str[p]], str, n, p+1);
     // nao libera memória pq palavra (str) pode ser prefixo de outra
-    // verifica se é prefixo e libera memória:
+    // verifica se é prefixo de outra palavra e libera memória:
     if((*tr)->estado == 1){
         return 0;
     }
-    for(int i=0;i<256;i++){
+    for(int i=0;i<N;i++){
         if((*tr)->filhos[i] != NULL)
             return 0;
     }
@@ -105,26 +112,39 @@ int removeTrie(Trie* tr, char *str){
 
 // ====================
 // AUTOCOMPLETAR
-void autocompletarTrieAux(Trie* tr, char *palavra){
+void autocompletarTrieAux(Trie* tr, char *prefixo, char *palavra, int p){
+    // aloca nova palavra a ser autocompletada (sufixo)
+    if(p == 0){
+        palavra = (char*) malloc(N*sizeof(char));
+    }
+
+    // não achou um nó
     if(tr == NULL){
-        palavra = "\0";
         return;
     }
 
+    // imprime se chegou no final da palavra
     if(tr->estado == 1){
-        printf("%s",palavra);
+        printf("%s",prefixo);
 
+        // se o prefixo não for uma palavra completa
+        if(p > 0)
+            printf("%s",palavra);
+
+        printf("\n");
     }
 
+    // percorre os caracteres da tabela ASCII
     for (int i = 0; i < N; i++){
         if(tr->filhos[i] != NULL){
-            char a = i;
-            strcat(palavra,(char*)a);
-            autocompletarTrieAux(tr->filhos[i], palavra);
+            palavra[p] = i;
+            palavra[p+1] = '\0';
+            autocompletarTrieAux(tr->filhos[i], prefixo, palavra, p+1);
         }
     }
 }
 
+// retorna segmento trie do prefixo
 Trie* obterPrefixoTrie(Trie* tr, char *str, int n, int p){
     if(tr == NULL)
         return NULL;
@@ -135,7 +155,12 @@ Trie* obterPrefixoTrie(Trie* tr, char *str, int n, int p){
 
 void autocompletarTrie(Trie* tr, char *prefixo){
     tr = obterPrefixoTrie(tr, prefixo, strlen(prefixo), 0);
-    autocompletarTrieAux(tr,"\0");
+    // se o prefixo não pertence a uma palavra:
+    if(tr == NULL)
+        return;
+
+    autocompletarTrieAux(tr, prefixo, "\0", 0);
+    return;
 }
 
 // ====================
