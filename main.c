@@ -8,9 +8,11 @@ Gustavo Melo do Carmo - 11721BCC035
 #include <stdio.h>
 #include "tad.h"
 
+#define TAMANHO_PALAVRA 50
+
 int main(void){
     int opc, arv_inicializada=0;
-    char p[50];
+    char p[TAMANHO_PALAVRA];
     Trie* arv;
     FILE *dados;
     // Menu
@@ -37,7 +39,8 @@ int main(void){
                     }
                     while(1){
                         if(feof(dados)) break;
-                        fscanf(dados, "%s",p);
+                        // fscanf(dados, "%s",p);
+                        fgets(p,TAMANHO_PALAVRA,dados);
                         insereTrie(arv, p);
                     }
                     printf("Dados inseridos\n");
