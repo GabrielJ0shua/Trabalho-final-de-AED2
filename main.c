@@ -84,6 +84,8 @@ int main(void){
                     break;
                 // Encerra o programa
                 case(8):
+                    if(arv_inicializada == 1)
+                        liberaTrie(arv);
                     printf("Encerrando o programa...\n");
                     return 0;
                 default:

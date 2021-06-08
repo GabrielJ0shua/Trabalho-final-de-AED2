@@ -66,7 +66,7 @@ Trie* buscaTrieAux(Trie* tr, char *str, int n, int p){
     if(tr == NULL)
         return NULL;
 
-    if(p == n)
+    if(p == n && tr->estado == 1)
         return tr;
     
     return buscaTrieAux(tr->filhos[str[p]], str, n, p+1);
@@ -97,7 +97,8 @@ int removeTrieAux(Trie **tr, char *str, int n, int p){
     if((*tr)->estado == 1){
         return 0;
     }
-    for(int i=0;i<N;i++){
+    int i;
+    for(i=0;i<N;i++){
         if((*tr)->filhos[i] != NULL)
             return 0;
     }
@@ -135,7 +136,8 @@ void autocompletarTrieAux(Trie* tr, char *prefixo, char *palavra, int p){
     }
 
     // percorre os caracteres da tabela ASCII
-    for (int i = 0; i < N; i++){
+    int i;
+    for (i = 0; i < N; i++){
         if(tr->filhos[i] != NULL){
             palavra[p] = i;
             palavra[p+1] = '\0';
@@ -182,7 +184,8 @@ void imprimeTrieAux(Trie* tr, char *palavra, int p){
     }
 
     // percorre os caracteres da tabela ASCII
-    for (int i = 0; i < N; i++){
+    int i;
+    for (i = 0; i < N; i++){
         if(tr->filhos[i] != NULL){
             palavra[p] = i;
             palavra[p+1] = '\0';
