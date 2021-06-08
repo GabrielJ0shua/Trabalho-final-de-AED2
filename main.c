@@ -11,7 +11,7 @@ Gustavo Melo do Carmo - 11721BCC035
 #define TAMANHO_PALAVRA 50
 
 int main(void){
-    int opc, arv_inicializada=0;
+    int opc, arv_inicializada = 0;
     char p[TAMANHO_PALAVRA];
     Trie* arv;
     FILE *dados;
@@ -85,6 +85,7 @@ int main(void){
                 // Encerra o programa
                 case(8):
                     printf("Encerrando o programa...\n");
+                    liberaTrie(arv);
                     return 0;
                 default:
                     printf("Opcao invalida...\n");
@@ -92,5 +93,6 @@ int main(void){
             }
         }
     }while (1);
+    liberaTrie(arv);
     return 1; //programa saiu dos casos então é erro, melhor encerrar por aqui
 }
