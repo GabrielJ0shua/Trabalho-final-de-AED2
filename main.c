@@ -39,8 +39,7 @@ int main(void){
                     }
                     while(1){
                         if(feof(dados)) break;
-                        // fscanf(dados, "%s",p);
-                        fgets(p,TAMANHO_PALAVRA,dados);
+                        fscanf(dados, "%s",p);
                         insereTrie(arv, p);
                     }
                     printf("Dados inseridos\n");
