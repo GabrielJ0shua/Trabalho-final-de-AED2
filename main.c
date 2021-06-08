@@ -8,9 +8,11 @@ Gustavo Melo do Carmo - 11721BCC035
 #include <stdio.h>
 #include "tad.h"
 
+#define TAMANHO_PALAVRA 50
+
 int main(void){
     int opc, arv_inicializada=0;
-    char p[50];
+    char p[TAMANHO_PALAVRA];
     Trie* arv;
     FILE *dados;
     // Menu
