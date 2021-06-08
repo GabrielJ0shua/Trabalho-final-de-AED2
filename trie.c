@@ -1,98 +1,201 @@
-/*
-Integrantes:
-Mateus Rocha Resende - 11921BCC027
-Gabriel Joshua Calixto Naves dos Santos - 11911BCC052
-Gustavo Melo do Carmo - 11721BCC035
-*/
-
+#include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "tad.h"
 
-#define TAMANHO_PALAVRA 50
+// N é igual ao tamanho da tabela ASCII
+#define N 256
 
-int main(void){
-    int opc, arv_inicializada = 0;
-    char p[TAMANHO_PALAVRA];
-    Trie* arv;
-    FILE *dados;
-    // Menu
-    do{
-        printf("\n1 - Inicializar a arvore\n2 - Inserir a base de dados\n3 - Buscar palavra\n4 - Autocompletar\n5 - Listar todas as palavras\n6 - Remover palavra\n7 - Liberar a arvore\n8 - Sair do sistema\nEscolha uma opcao: ");
-        scanf("%d",&opc);
+struct trie{
+    struct trie* filhos[N];
+    int estado; // 0 para livre, 1 para ocupado
+};
+
+Trie* criaTrie(){
+    Trie* no = (Trie*) malloc(sizeof(Trie));
+    int i;
+
+    no->estado = 0;
+    for(i=0;i<N;i++){
+        no->filhos[i] = NULL;
+    }
+
+    return no;
+}
+
+void liberaTrie(Trie* tr){
+    int i;
+
+    if(tr->estado == 0)
+        for(i=0;i<N;i++)
+            if(tr->filhos[i] != NULL)
+                liberaTrie(tr->filhos[i]);
+    
+    if(tr != NULL)
+        free(tr);
+
+    return;
+}
+
+
+
+// ====================
+// INSERÇÃO
+// p = profundidade, quantas buscas ja foram feitas
+// n = comprimento da palavra
+int insereTrieAux(Trie **tr, char *str, int n, int p){
+    if(*tr == NULL){
+        *tr = criaTrie();
+    }
+    if(p == n){
+        (*tr)->estado = 1;
+        return 0;
+    }
+    return insereTrieAux(&(*tr)->filhos[str[p]], str, n, p+1);
+}
+
+int insereTrie(Trie* tr, char *str){
+    return insereTrieAux(&tr, str, strlen(str), 0);
+}
+
+// ====================
+// BUSCA
+// p = profundidade, quantas buscas ja foram feitas
+// n = comprimento da palavra
+Trie* buscaTrieAux(Trie* tr, char *str, int n, int p){
+    if(tr == NULL)
+        return NULL;
+
+    if(p == n)
+        return tr;
+    
+    return buscaTrieAux(tr->filhos[str[p]], str, n, p+1);
+}
+
+int buscaTrie(Trie* tr, char *str){
+    tr = buscaTrieAux(tr, str, strlen(str), 0);
+    if(tr == NULL)
+        return 1;
+    else
+        return 0;
+}
+
+// ====================
+// REMOÇÃO
+// p = profundidade, quantas buscas ja foram feitas
+// n = comprimento da palavra
+int removeTrieAux(Trie **tr, char *str, int n, int p){
+    if(*tr == NULL)
+        return 1;
+
+    if(p == n)
+        (*tr)->estado = 0;
+    else
+        removeTrieAux(&(*tr)->filhos[str[p]], str, n, p+1);
+    // nao libera memória pq palavra (str) pode ser prefixo de outra
+    // verifica se é prefixo de outra palavra e libera memória:
+    if((*tr)->estado == 1){
+        return 0;
+    }
+    int i;
+    for(i = 0;i < N;i++){
+        if((*tr)->filhos[i] != NULL)
+            return 0;
+    }
+    free(*tr);
+    *tr = NULL;
+    return 0;
+}
+
+int removeTrie(Trie* tr, char *str){
+    return removeTrieAux(&tr, str, strlen(str), 0);
+}
+
+// ====================
+// AUTOCOMPLETAR
+void autocompletarTrieAux(Trie* tr, char *prefixo, char *palavra, int p){
+    // aloca nova palavra a ser autocompletada (sufixo)
+    if(p == 0){
+        palavra = (char*) malloc(N*sizeof(char));
+    }
+
+    // não achou um nó
+    if(tr == NULL){
+        return;
+    }
+
+    // imprime se chegou no final da palavra
+    if(tr->estado == 1){
+        printf("%s",prefixo);
+
+        // se o prefixo não for uma palavra completa
+        if(p > 0)
+            printf("%s",palavra);
+
         printf("\n");
-        if(arv_inicializada == 0 && opc > 1 && opc < 8){
-            printf("Arvore nao inicializada!\n");
-        }else{
-            switch(opc){
-                // Inicializa a Árvore
-                case(1):
-                    arv = criaTrie();
-                    arv_inicializada = 1;
-                    printf("Arvore criada\n");
-                    break;
-                // Le e insere os dados
-                case(2):
-                    dados = fopen("palavras.txt", "r");
-                    if (dados == NULL){
-                        printf("Erro ao abrir o arquivo!");
-                        return 1;
-                    }
-                    while(1){
-                        if(feof(dados)) break;
-                        fscanf(dados, "%s",p);
-                        insereTrie(arv, p);
-                    }
-                    printf("Dados inseridos\n");
-                    fclose(dados);
-                    break;
-                // Busca uma palavra
-                case(3):
-                    printf("Busca: ");
-                    setbuf(stdin,NULL);
-                    gets(p);
-                    if (buscaTrie(arv, p) == 0)
-                        printf("Palavra encontrada\n");
-                    else
-                        printf("Palavra nao encontrada...\n");
-                    break;
-                // Imprime todas as palavras com o prefixo digitado
-                case(4):
-                    printf("Prefixo: ");
-                    setbuf(stdin,NULL);
-                    gets(p);
-                    autocompletarTrie(arv,p);
-                    break;
-                // Imprime todas as palavras armazenadas
-                case(5):
-                    imprimeTrie(arv);
-                    break;
-                // Remove uma palavra
-                case(6):
-                    printf("Remover: ");
-                    setbuf(stdin,NULL);
-                    gets(p);
-                    if(removeTrie(arv,p) == 0)
-                        printf("Palavra removida\n");
-                    else
-                        printf("Palavra nao encontrada...\n");
-                    break;
-                // Libera árvore
-                case(7):
-                    liberaTrie(arv);
-                    arv_inicializada = 0;
-                    printf("Arvore liberada\n");
-                    break;
-                // Encerra o programa
-                case(8):
-                    printf("Encerrando o programa...\n");
-                    liberaTrie(arv);
-                    return 0;
-                default:
-                    printf("Opcao invalida...\n");
-                    break;
-            }
+    }
+
+    // percorre os caracteres da tabela ASCII
+    int i;
+    for (i = 0; i < N; i++){
+        if(tr->filhos[i] != NULL){
+            palavra[p] = i;
+            palavra[p+1] = '\0';
+            autocompletarTrieAux(tr->filhos[i], prefixo, palavra, p+1);
         }
-    }while (1);
-    liberaTrie(arv);
-    return 1; //programa saiu dos casos então é erro, melhor encerrar por aqui
+    }
+}
+
+// retorna segmento trie do prefixo
+Trie* obterPrefixoTrie(Trie* tr, char *str, int n, int p){
+    if(tr == NULL)
+        return NULL;
+    if(p == n)
+        return tr;
+    return obterPrefixoTrie(tr->filhos[str[p]], str, n, p+1);
+}
+
+void autocompletarTrie(Trie* tr, char *prefixo){
+    tr = obterPrefixoTrie(tr, prefixo, strlen(prefixo), 0);
+    // se o prefixo não pertence a uma palavra:
+    if(tr == NULL)
+        return;
+
+    autocompletarTrieAux(tr, prefixo, "\0", 0);
+    return;
+}
+
+// ====================
+// IMPRIMIR
+void imprimeTrieAux(Trie* tr, char *palavra, int p){
+    // aloca nova palavra
+    if(p == 0){
+        palavra = (char*) malloc(N*sizeof(char));
+    }
+
+    // não achou um nó
+    if(tr == NULL){
+        return;
+    }
+
+    // imprime se chegou no final da palavra
+    if(tr->estado == 1){
+        printf("%s\n",palavra);
+    }
+
+    // percorre os caracteres da tabela ASCII
+    int i;
+    for (i = 0; i < N; i++){
+        if(tr->filhos[i] != NULL){
+            palavra[p] = i;
+            palavra[p+1] = '\0';
+            imprimeTrieAux(tr->filhos[i], palavra, p+1);
+        }
+    }
+}
+
+void imprimeTrie(Trie* tr){
+    if(tr != NULL)
+        imprimeTrieAux(tr,"\0",0);
+    return;
 }
